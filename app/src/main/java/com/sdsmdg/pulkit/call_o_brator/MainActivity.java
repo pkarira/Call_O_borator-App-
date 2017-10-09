@@ -17,7 +17,7 @@ import org.json.JSONObject;
 import java.net.URISyntaxException;
 
 public class MainActivity extends AppCompatActivity {
-    private Socket mSocket;
+    public static Socket mSocket;
     private JSONObject jsonObject;
     private Button send;
 
@@ -26,19 +26,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         send=(Button)findViewById(R.id.button);
-        send.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                jsonObject=new JSONObject();
-                try {
-                    jsonObject.put("number","dhjhhsdf");
-                    jsonObject.put("name","djcskjdsk");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                mSocket.emit("contactInfo",jsonObject);
-            }
-        });
         try {
             mSocket = IO.socket("http://10.42.0.1:8080");
         } catch (URISyntaxException e) {
@@ -59,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject data = (JSONObject) args[0];
                     String message;
                     try {
+                        IncomingCall.rejectCall();
                         message = data.getString("message");
                         Toast.makeText(getApplication(),message,Toast.LENGTH_LONG).show();
                     } catch (JSONException e) {
