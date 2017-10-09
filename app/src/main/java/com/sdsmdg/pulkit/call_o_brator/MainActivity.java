@@ -3,6 +3,8 @@ package com.sdsmdg.pulkit.call_o_brator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.github.nkzawa.emitter.Emitter;
@@ -17,11 +19,26 @@ import java.net.URISyntaxException;
 public class MainActivity extends AppCompatActivity {
     private Socket mSocket;
     private JSONObject jsonObject;
+    private Button send;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        send=(Button)findViewById(R.id.button);
+        send.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                jsonObject=new JSONObject();
+                try {
+                    jsonObject.put("number","dhjhhsdf");
+                    jsonObject.put("name","djcskjdsk");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                mSocket.emit("contactInfo",jsonObject);
+            }
+        });
         try {
             mSocket = IO.socket("http://10.42.0.1:8080");
         } catch (URISyntaxException e) {
@@ -30,19 +47,12 @@ public class MainActivity extends AppCompatActivity {
         }
         mSocket.connect();
         mSocket.on("reject", onReject);
-        jsonObject=new JSONObject();
-        try {
-            jsonObject.put("number","dhjhhsdf");
-            jsonObject.put("name","djcskjdsk");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        mSocket.emit("contachInfo",jsonObject);
     }
 
     private Emitter.Listener onReject = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
+           Log.e("csnjcn0","cskdnjds");
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -50,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
                     String message;
                     try {
                         message = data.getString("message");
-                        Toast.makeText(getApplication(),message,Toast.LENGTH_LONG);
+                        Toast.makeText(getApplication(),message,Toast.LENGTH_LONG).show();
                     } catch (JSONException e) {
                         return;
                     }
