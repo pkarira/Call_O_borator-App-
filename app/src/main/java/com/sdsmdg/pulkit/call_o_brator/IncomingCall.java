@@ -3,11 +3,12 @@ package com.sdsmdg.pulkit.call_o_brator;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
+import android.database.Cursor;
+import android.net.Uri;
+import android.provider.ContactsContract;
 import android.telephony.PhoneStateListener;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.android.internal.telephony.ITelephony;
 
@@ -24,13 +25,19 @@ public class IncomingCall extends BroadcastReceiver {
     Context mContext;
     public static TelephonyManager telephonyManager = null;
     public static Intent intent;
+    public static String phoneNumber;
+    public static ITelephony telephonyService;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         this.intent = intent;
         mContext = context;
+        Class c = null;
         try {
-            Log.d("status","call received");
+            c = Class.forName(telephonyManager.getClass().getName());
+            Method m = c.getDeclaredMethod("getITelephony");
+            m.setAccessible(true);
+            telephonyService = (ITelephony) m.invoke(telephonyManager);
             telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             MyPhoneStateListener PhoneListener = new MyPhoneStateListener();
             telephonyManager.listen(PhoneListener, PhoneStateListener.LISTEN_CALL_STATE);
@@ -42,38 +49,64 @@ public class IncomingCall extends BroadcastReceiver {
     private class MyPhoneStateListener extends PhoneStateListener {
         public void onCallStateChanged(int state, String incomingNumber) {
             if (state == 1) {
-                Log.d("status","sending message");
+                String contactName = "";
+                if (getContactName(incomingNumber, mContext) != "")
+                    contactName = getContactName(incomingNumber, mContext);
+                else if (getContactName(incomingNumber.substring(1), mContext) != "")
+                    contactName = getContactName(incomingNumber.substring(1), mContext);
+                else if (getContactName(incomingNumber.substring(2), mContext) != "")
+                    contactName = getContactName(incomingNumber.substring(2), mContext);
+                else if (getContactName(incomingNumber.substring(3), mContext) != "")
+                    contactName = getContactName(incomingNumber.substring(3), mContext);
                 JSONObject jsonObject = new JSONObject();
                 try {
-                    jsonObject.put("number", "dhjhhsdf");
-                    jsonObject.put("name", "djcskjdsk");
+                    jsonObject.put("number", incomingNumber);
+                    jsonObject.put("name", contactName);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
                 MainActivity.mSocket.emit("contactInfo", jsonObject);
-                String msg = "New Phone Call Event. Incomming Number : " + incomingNumber;
-                Toast.makeText(mContext, msg, Toast.LENGTH_LONG).show();
             }
         }
     }
 
     public static void rejectCall() {
-        Log.d("status","in call rejection");
         try {
-            Class c = Class.forName(telephonyManager.getClass().getName());
-            Method m = c.getDeclaredMethod("getITelephony");
-            m.setAccessible(true);
-            ITelephony telephonyService = (ITelephony) m.invoke(telephonyManager);
-            Bundle bundle = intent.getExtras();
-            String phoneNumber = bundle.getString("incoming_number");
-            Log.d("INCOMING", phoneNumber);
+
             if ((phoneNumber != null)) {
                 telephonyService.endCall();
-                Log.d("HANG UP", phoneNumber);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    public static void pickCall() {
+        try {
+            if ((phoneNumber != null)) {
+                telephonyService.answerRingingCall();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String getContactName(final String phoneNumber, Context context) {
+        Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
+
+        String[] projection = new String[]{ContactsContract.PhoneLookup.DISPLAY_NAME};
+
+        String contactName = "";
+        Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null);
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                contactName = cursor.getString(0);
+            }
+            cursor.close();
+        }
+
+        return contactName;
     }
 }

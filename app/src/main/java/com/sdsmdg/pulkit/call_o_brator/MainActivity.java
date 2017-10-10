@@ -18,7 +18,6 @@ import java.net.URISyntaxException;
 
 public class MainActivity extends AppCompatActivity {
     public static Socket mSocket;
-    private JSONObject jsonObject;
     private Button send;
 
     @Override
@@ -34,12 +33,31 @@ public class MainActivity extends AppCompatActivity {
         }
         mSocket.connect();
         mSocket.on("reject", onReject);
+        mSocket.on("pick", onPick);
     }
 
     private Emitter.Listener onReject = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
-           Log.e("csnjcn0","cskdnjds");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    JSONObject data = (JSONObject) args[0];
+                    String message;
+                    try {
+                        IncomingCall.pickCall();
+                        message = data.getString("message");
+                        Toast.makeText(getApplication(),message,Toast.LENGTH_LONG).show();
+                    } catch (JSONException e) {
+                        return;
+                    }
+                }
+            });
+        }
+    };
+    private Emitter.Listener onPick = new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
