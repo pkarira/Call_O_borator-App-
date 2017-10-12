@@ -34,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         mSocket.connect();
         mSocket.on("reject", onReject);
         mSocket.on("pick", onPick);
+        mSocket.on("connect", onConnect);
     }
 
     private Emitter.Listener onReject = new Emitter.Listener() {
@@ -45,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject data = (JSONObject) args[0];
                     String message;
                     try {
-                        IncomingCall.pickCall();
+                        IncomingCall.rejectCall();
                         message = data.getString("message");
                         Toast.makeText(getApplication(),message,Toast.LENGTH_LONG).show();
                     } catch (JSONException e) {
@@ -64,12 +65,23 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject data = (JSONObject) args[0];
                     String message;
                     try {
-                        IncomingCall.rejectCall();
+                        IncomingCall.pickCall();
                         message = data.getString("message");
                         Toast.makeText(getApplication(),message,Toast.LENGTH_LONG).show();
                     } catch (JSONException e) {
                         return;
                     }
+                }
+            });
+        }
+    };
+    private Emitter.Listener onConnect= new Emitter.Listener() {
+        @Override
+        public void call(final Object... args) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mSocket.emit("room", LoginActivity.contactNumber);
                 }
             });
         }

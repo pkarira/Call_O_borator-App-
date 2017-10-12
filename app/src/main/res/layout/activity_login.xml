@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#76b852"
+    tools:context="com.sdsmdg.pulkit.call_o_brator.LoginActivity">
+
+
+
+    <FrameLayout
+        android:layout_width="274dp"
+        android:layout_height="200dp"
+        android:background="#ffffff"
+        tools:layout_editor_absoluteX="55dp"
+        tools:layout_editor_absoluteY="124dp">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <Button
+                android:id="@+id/button2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/editText"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="17dp"
+                android:background="#4CAF50"
+                android:text="Login"
+                android:textColor="#ffffff"
+                tools:layout_editor_absoluteX="148dp"
+                tools:layout_editor_absoluteY="244dp" />
+
+            <EditText
+                android:id="@+id/editText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="47dp"
+                android:ems="10"
+                android:hint="Mobile Number"
+                android:inputType="textPersonName"
+                tools:layout_editor_absoluteX="85dp"
+                tools:layout_editor_absoluteY="176dp" />
+        </RelativeLayout>
+    </FrameLayout>
+</android.support.constraint.ConstraintLayout>
