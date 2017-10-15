@@ -54,7 +54,7 @@ public class IncomingCall extends BroadcastReceiver {
 
     private class MyPhoneStateListener extends PhoneStateListener {
         public void onCallStateChanged(int state, String incomingNumber) {
-            if (state == 1) {
+            if (state == 1 ) {
                 String contactName = "";
                 if (getContactName(incomingNumber, mContext) != "")
                     contactName = getContactName(incomingNumber, mContext);
@@ -64,7 +64,7 @@ public class IncomingCall extends BroadcastReceiver {
                     contactName = getContactName(incomingNumber.substring(2), mContext);
                 else if (getContactName(incomingNumber.substring(3), mContext) != "")
                     contactName = getContactName(incomingNumber.substring(3), mContext);
-                Log.d("contact", contactName);
+                Log.e("contact", contactName);
                 JSONObject jsonObject = new JSONObject();
                 try {
                     jsonObject.put("number", incomingNumber);

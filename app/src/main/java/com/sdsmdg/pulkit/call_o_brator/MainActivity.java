@@ -1,5 +1,6 @@
 package com.sdsmdg.pulkit.call_o_brator;
 
+import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,9 +25,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        send=(Button)findViewById(R.id.button);
+       // send=(Button)findViewById(R.id.button);
         try {
-            mSocket = IO.socket("http://10.42.0.1:8080");
+            mSocket = IO.socket("http://192.168.43.120:8000");
         } catch (URISyntaxException e) {
             Log.e("error","error");
             e.printStackTrace();
@@ -65,7 +66,9 @@ public class MainActivity extends AppCompatActivity {
                     JSONObject data = (JSONObject) args[0];
                     String message;
                     try {
-                        IncomingCall.pickCall();
+                        Intent intent = new Intent(MainActivity.this, AcceptCallActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
+                        MainActivity.this.startActivity(intent);
                         message = data.getString("message");
                         Toast.makeText(getApplication(),message,Toast.LENGTH_LONG).show();
                     } catch (JSONException e) {
