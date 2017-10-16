@@ -16,8 +16,11 @@ import android.view.WindowManager;
 
 import java.io.IOException;
 
-class AcceptCallActivity extends Activity {
+/**
+ * Created by pulkit on 16/10/17.
+ */
 
+public class AcceptCallActivity extends Activity {
     private static final String MANUFACTURER_HTC = "HTC";
 
     private KeyguardManager keyguardManager;
