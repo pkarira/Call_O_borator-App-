@@ -84,11 +84,6 @@ public class IncomingCall extends BroadcastReceiver {
             telephonyService.endCall();
     }
 
-    public static void pickCall() {
-        if ((phoneNumber != null))
-            telephonyService.answerRingingCall();
-    }
-
     public String getContactName(final String phoneNumber, Context context) {
         Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(phoneNumber));
 

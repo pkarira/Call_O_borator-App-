@@ -3,6 +3,7 @@ package com.sdsmdg.pulkit.call_o_brator;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -18,6 +19,7 @@ public class LoginActivity extends AppCompatActivity {
     public final static int MY_PERMISSIONS_REQUEST_READ_PHONE_CONTACTS = 12;
     public final static int MY_PERMISSIONS_WAKE_LOCK = 13;
     public final static int MY_PERMISSIONS_KEYGUARD = 14;
+    public final static int MY_PERMISSIONS_CALL_PHONE = 15;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,14 +63,14 @@ public class LoginActivity extends AppCompatActivity {
             }
         }
         if (ContextCompat.checkSelfPermission(getApplicationContext(),
-                Manifest.permission.READ_CONTACTS)
+                Manifest.permission.CALL_PHONE)
                 != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.READ_CONTACTS)) {
             } else {
                 ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.READ_CONTACTS},
-                        MY_PERMISSIONS_REQUEST_READ_PHONE_CONTACTS);
+                        new String[]{Manifest.permission.CALL_PHONE},
+                        MY_PERMISSIONS_CALL_PHONE);
             }
         }
         if (ContextCompat.checkSelfPermission(getApplicationContext(),
@@ -92,6 +94,15 @@ public class LoginActivity extends AppCompatActivity {
                         new String[]{Manifest.permission.DISABLE_KEYGUARD},
                         MY_PERMISSIONS_KEYGUARD);
             }
+        }
+        if (Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners")!=null && Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners").contains(getApplicationContext().getPackageName()))
+        {
+
+        } else
+        {
+            Intent i = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+            i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(i);
         }
     }
     @Override
@@ -117,6 +128,12 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
             case MY_PERMISSIONS_WAKE_LOCK:{
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                } else {
+                }
+                return;
+            }
+            case MY_PERMISSIONS_CALL_PHONE:{
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 } else {
                 }
