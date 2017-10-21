@@ -11,6 +11,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -34,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
        // send=(Button)findViewById(R.id.button);
         try {
-            mSocket = IO.socket("http://192.168.43.120:8000");
+            mSocket = IO.socket("https://sync-call.herokuapp.com/");
         } catch (URISyntaxException e) {
             Log.e("error","error");
             e.printStackTrace();
@@ -82,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
                                 return;
                             }
                         }
-                       /* Intent intent = new Intent(MainActivity.this, AcceptCallActivity.class);
+                        /*Intent intent = new Intent(MainActivity.this, AcceptCallActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
                         MainActivity.this.startActivity(intent);*/
                     } catch (JSONException e) {
@@ -103,4 +105,26 @@ public class MainActivity extends AppCompatActivity {
             });
         }
     };
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.actionmenu, menu);
+        return true;
+    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                JSONObject jsonObject = new JSONObject();
+                try {
+                    jsonObject.put("room", LoginActivity.contactNumber);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                MainActivity.mSocket.emit("logout", jsonObject);
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }

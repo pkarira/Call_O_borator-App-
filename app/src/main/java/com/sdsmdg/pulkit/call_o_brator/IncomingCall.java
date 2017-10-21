@@ -29,6 +29,7 @@ public class IncomingCall extends BroadcastReceiver {
     public static Intent intent;
     public static String phoneNumber;
     public static ITelephony telephonyService;
+    public static boolean wasRinging;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -54,7 +55,8 @@ public class IncomingCall extends BroadcastReceiver {
 
     private class MyPhoneStateListener extends PhoneStateListener {
         public void onCallStateChanged(int state, String incomingNumber) {
-            if (state == 1 ) {
+            switch(state) {
+                case TelephonyManager.CALL_STATE_RINGING:
                 String contactName = "";
                 if (getContactName(incomingNumber, mContext) != "")
                     contactName = getContactName(incomingNumber, mContext);
@@ -75,6 +77,37 @@ public class IncomingCall extends BroadcastReceiver {
                 }
                 Log.d("contact", "message emitted");
                 MainActivity.mSocket.emit("contactInfo", jsonObject);
+                wasRinging = true;
+                    break;
+                case TelephonyManager.CALL_STATE_OFFHOOK:
+                    Log.d("state","in answered");
+                    if (!wasRinging) {
+                        JSONObject stop = new JSONObject();
+                        try {
+                            stop.put("room", LoginActivity.contactNumber);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        MainActivity.mSocket.emit("stop",stop);
+                    } else {
+                    }
+                    wasRinging = true;
+                    break;
+                case TelephonyManager.CALL_STATE_IDLE:
+                    Log.d("state","in cancelled");
+                    if (!wasRinging) {
+                        Log.d("state","stop");
+                        JSONObject stop = new JSONObject();
+                        try {
+                            stop.put("room", LoginActivity.contactNumber);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        MainActivity.mSocket.emit("stop",stop);
+                    } else {
+                    }
+                    wasRinging = false;
+                    break;
             }
         }
     }
