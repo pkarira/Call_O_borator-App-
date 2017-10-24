@@ -30,6 +30,7 @@ public class IncomingCall extends BroadcastReceiver {
     public static String phoneNumber;
     public static ITelephony telephonyService;
     public static boolean wasRinging;
+    public static boolean messageEmitted = false;
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -55,32 +56,35 @@ public class IncomingCall extends BroadcastReceiver {
 
     private class MyPhoneStateListener extends PhoneStateListener {
         public void onCallStateChanged(int state, String incomingNumber) {
-            switch(state) {
+            switch (state) {
                 case TelephonyManager.CALL_STATE_RINGING:
-                String contactName = "";
-                if (getContactName(incomingNumber, mContext) != "")
-                    contactName = getContactName(incomingNumber, mContext);
-                else if (getContactName(incomingNumber.substring(1), mContext) != "")
-                    contactName = getContactName(incomingNumber.substring(1), mContext);
-                else if (getContactName(incomingNumber.substring(2), mContext) != "")
-                    contactName = getContactName(incomingNumber.substring(2), mContext);
-                else if (getContactName(incomingNumber.substring(3), mContext) != "")
-                    contactName = getContactName(incomingNumber.substring(3), mContext);
-                Log.e("contact", contactName);
-                JSONObject jsonObject = new JSONObject();
-                try {
-                    jsonObject.put("number", incomingNumber);
-                    jsonObject.put("name", contactName);
-                    jsonObject.put("room", LoginActivity.contactNumber);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                Log.d("contact", "message emitted");
-                MainActivity.mSocket.emit("contactInfo", jsonObject);
-                wasRinging = true;
+                    String contactName = "";
+                    if (getContactName(incomingNumber, mContext) != "")
+                        contactName = getContactName(incomingNumber, mContext);
+                    else if (getContactName(incomingNumber.substring(1), mContext) != "")
+                        contactName = getContactName(incomingNumber.substring(1), mContext);
+                    else if (getContactName(incomingNumber.substring(2), mContext) != "")
+                        contactName = getContactName(incomingNumber.substring(2), mContext);
+                    else if (getContactName(incomingNumber.substring(3), mContext) != "")
+                        contactName = getContactName(incomingNumber.substring(3), mContext);
+                    Log.e("contact", contactName);
+                    JSONObject jsonObject = new JSONObject();
+                    try {
+                        jsonObject.put("number", incomingNumber);
+                        jsonObject.put("name", contactName);
+                        jsonObject.put("room", LoginActivity.contactNumber);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if (!messageEmitted) {
+                        MainActivity.mSocket.emit("contactInfo", jsonObject);
+                        Log.d("contact", "message emitted");
+                    }
+                    messageEmitted=true;
+                    wasRinging = true;
                     break;
                 case TelephonyManager.CALL_STATE_OFFHOOK:
-                    Log.d("state","in answered");
+                    Log.d("state", "in answered");
                     if (!wasRinging) {
                         JSONObject stop = new JSONObject();
                         try {
@@ -88,22 +92,24 @@ public class IncomingCall extends BroadcastReceiver {
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        MainActivity.mSocket.emit("stop",stop);
+                        MainActivity.mSocket.emit("stop", stop);
+                        messageEmitted=false;
                     } else {
                     }
                     wasRinging = true;
                     break;
                 case TelephonyManager.CALL_STATE_IDLE:
-                    Log.d("state","in cancelled");
+                    Log.d("state", "in cancelled");
                     if (!wasRinging) {
-                        Log.d("state","stop");
+                        Log.d("state", "stop");
                         JSONObject stop = new JSONObject();
                         try {
                             stop.put("room", LoginActivity.contactNumber);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
-                        MainActivity.mSocket.emit("stop",stop);
+                        MainActivity.mSocket.emit("stop", stop);
+                        messageEmitted=false;
                     } else {
                     }
                     wasRinging = false;
